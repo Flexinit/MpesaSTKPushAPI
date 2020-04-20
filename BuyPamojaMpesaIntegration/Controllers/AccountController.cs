@@ -406,8 +406,7 @@ namespace BuyPamojaMpesaIntegration.Controllers
         {
             try
             {
-                //var context = new ApplicationDbContext();
-
+              
 
                 string MerchantRequestID = response.Body.stkCallback.MerchantRequestID;
                 string CheckoutRequestID = response.Body.stkCallback.CheckoutRequestID;
@@ -422,6 +421,8 @@ namespace BuyPamojaMpesaIntegration.Controllers
                 //    writer.WriteLine("Created By :" + "SYSTEM" + Environment.NewLine + "Date Created :" + DateTime.Now.ToString() + Environment.NewLine + "2020/3/2 Message :" + ResultCode + " " + ResultDesc + Environment.NewLine + "StackTrace :" + "N/A");
                 //    writer.WriteLine(Environment.NewLine + "-----------------------------------------------------------------------------" + Environment.NewLine);
                 //}
+
+                Logger.WriteLog(DateTime.Now + "Response from Safaricom API: " +ResultCode + " " + ResultDesc);
 
                 using (var conn = new ApplicationDbContext())
                 {
@@ -470,35 +471,12 @@ namespace BuyPamojaMpesaIntegration.Controllers
             }
         }
 
-        //  [HttpPost]
-        //[Route("NewPay")]
-        //[AllowAnonymous]
-        //public async Task<HttpResponseMessage> NewPay(HttpRequestMessage request)
-        //{
-        //    try
-        //    {
-        //        var jsonString = await request.Content.ReadAsStringAsync();
-
-        //        // Do something with the string
-        //        Logger.WriteLog(DateTime.Now + ":  Stk Response: " + jsonString.ToString());
-
-        //        return new HttpResponseMessage(System.Net.HttpStatusCode.Created);
-        //    }
-        //    catch (Exception ex) {
-
-        //        Logger.WriteLog(DateTime.Now + ":  Stk Response: " + ex.Message);
-
-        //        return new HttpResponseMessage(System.Net.HttpStatusCode.Created);
-
-        //    }
-        //}
+       
 
 
         [Route("NewPayment")]
         //[HttpPost]
-        [AllowAnonymous]
-
-       
+        [AllowAnonymous]     
         public ActionResult NewPayment(Payments model)
         {
             try
