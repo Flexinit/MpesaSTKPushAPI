@@ -6,7 +6,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <TimeStampOfAssociatedLegacyPublishXmlFile />
-    <_PublishTargetUrl>G:\EMESCCOS_MPESA_C2B_API</_PublishTargetUrl>
+    <_PublishTargetUrl>C:\Users\User\Documents\BUY_PAMOJA_API</_PublishTargetUrl>
   </PropertyGroup>
   <ItemGroup>
     <File Include="bin/Antlr3.Runtime.dll">
@@ -16,10 +16,10 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>09/10/2013 16:29:20</publishTime>
     </File>
     <File Include="bin/BuyPamojaMpesaIntegration.dll">
-      <publishTime>04/01/2020 21:50:22</publishTime>
+      <publishTime>04/28/2020 14:34:13</publishTime>
     </File>
     <File Include="bin/BuyPamojaMpesaIntegration.pdb">
-      <publishTime>04/01/2020 21:50:22</publishTime>
+      <publishTime>04/28/2020 14:34:13</publishTime>
     </File>
     <File Include="bin/EntityFramework.dll">
       <publishTime>10/23/2017 13:15:18</publishTime>
@@ -415,7 +415,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>01/24/2020 21:41:08</publishTime>
     </File>
     <File Include="Web.config">
-      <publishTime>02/12/2020 23:13:36</publishTime>
+      <publishTime>04/28/2020 14:34:19</publishTime>
     </File>
   </ItemGroup>
 </Project>

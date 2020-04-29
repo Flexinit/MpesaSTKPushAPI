@@ -30,27 +30,12 @@ namespace IESR_PAYMENTS.Controllers
                 string token = GenerateAccessToken.generate("rOXDzQxciiMWISPianwzexdqkXw734Os", "HQ4mbKm8ZsTYqY73");
                 string resp_token = ((JObject.Parse(token))["access_token"]).ToString();
 
-
                 string baseUrl = "https://api.safaricom.co.ke/mpesa/c2b/v1/registerurl";
 
-                //string myJson =
-                //    "{'ShortCode': '777951'," +
-                //    "'ResponseType': 'Completed'," +
-                //    "'ValidationURL': 'http://safpay.buypamoja.com/Account/NewPayment\'," +
-                //    "'ConfirmationURL':'https://safpay.buypamoja.com/Account/NewPayment\'}";
-                //using (var client = new HttpClient())
-                //{
-                //    client.DefaultRequestHeaders.Add("Authorization", "Bearer " + resp_token);
-                //    //client.DefaultRequestHeaders.Add("Authorization", "Bearer " + resp_token);
-
-                //    var responseData = await client.PostAsync(
-                //        baseUrl,
-                //         new StringContent(myJson, Encoding.UTF8, "application/json"));
-                //}
-
-
-
-
+                string validationURL = '"' + DataConfig.CallbackUrl + '"';
+                string confirmationURL = '"' + DataConfig.CallbackUrl + '"';
+                string responseType = '"' + "Completed" + '"';                
+                string businessshortcode = '"' + "777951" + '"';
                 
                 // return resp_token;
 
@@ -66,19 +51,17 @@ namespace IESR_PAYMENTS.Controllers
 
                 using (var streamWriter = new StreamWriter(request.GetRequestStream()))
                 {
-                    string json = "{\"ShortCode\":\"777951\"," +
-                                  "\"ResponseType\":\"Completed\"," +
-                                  "\"ValidationURL\":\"https://safpaybuypamoja.com/Account/NewPayment\"," +
-                                  "\"ConfirmationURL\":\"https://safpaybuypamoja.com/Account/NewPayment\"}";
+                   
+                    string json = "{\"ShortCode\":" + businessshortcode + "," +
+                       "\"ResponseType\":" + responseType + "," +
+                       "\"ValidationURL\":" + validationURL + "," +
+                       "\"ConfirmationURL\":" + confirmationURL + "}";
 
                     streamWriter.Write(json);
                     streamWriter.Flush();
                     streamWriter.Close();
                 }
-
-
-                //try
-                //{
+          
                     HttpWebResponse response = (HttpWebResponse)request.GetResponse();
 
                     // Get the stream associated with the response.
@@ -95,13 +78,6 @@ namespace IESR_PAYMENTS.Controllers
                 return Json(new { response = resp, 
                     
                 });
-
-                //return Json(new { ShortCode = "883380",
-                //    ResponseType = "",
-                //    ValidationURL = @"http://payments.iesr.ac.ke/NewPayValidation/NewPay\",
-                //    ConfirmationURL = @"http://payments.iesr.ac.ke/NewPayReceiption/NewPay\"
-                //});
-
 
 
             }

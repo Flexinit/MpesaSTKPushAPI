@@ -20,30 +20,47 @@ namespace BuyPamojaMpesaIntegration.Controllers
         public static string PhoneIMEI;
         public static string TransactnID;
      
-            public ActionResult makeStkPayment(string phoneNumber, string amount, string deviceIMEI, string transID)
+            public ActionResult makeStkPayment(string phoneNumber, string amount,string accountName /* string deviceIMEI, string transID*/)
             {
             ////////////////
-            PhoneIMEI = deviceIMEI;
-            TransactnID = transID;
+            //PhoneIMEI = deviceIMEI;
+            //TransactnID = transID;
             string ab = "https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest";
             string baseUrl = ab;
-            string user = "CktydtNoEgUQ9H2Jx1IShtkY28G1Bg6V";
-            string pass = "zo1MIYc8i2FKvg20";
-          //  string phonenumber = '"' + "254" + phoneNumber + '"'; 
-            string businessshortcode = '"' + "322116" + '"';
-            //string phonenumber2 = '"' + "254" + "715049292" + '"';
+
+          //  BUY PAMOJA SERVICES CREDENTIALS
+            string user = "rOXDzQxciiMWISPianwzexdqkXw734Os";
+            string pass = "HQ4mbKm8ZsTYqY73";
+            string shortCode = "777951";
+            string businessshortcode = '"' + "777951" + '"';
+            string passkey = "e4a4207d16c990eabe040038678377b13db657d94f90ec4cbc8fad43a7cec12f";
+
+            //EMESCCOS CREDENTIALS
+            //string user = "CktydtNoEgUQ9H2Jx1IShtkY28G1Bg6V";
+            //string pass = "zo1MIYc8i2FKvg20";
+            //string passkey = "79b821652462bf5ac20c26c9407cd6a5e779a8e2db4710901373a2c544005eb3";
+            //   string phonenumber = '"' + "254" + phoneNumber + '"';
+           // string businessshortcode = '"' + "322116" + '"';
+          //  string phonenumber2 = '"' + "254" + "729223348" + '"';
             string phonenumber2 = '"' + "254" + phoneNumber.Substring(1) + '"';
             string ttype = '"' + "CustomerPayBillOnline" + '"';
-            string amt = '"' + "1" + '"';
-            string accountref = '"' + "EMESCCOS" + '"';
-            string tdesc = '"' + "EMESCCOS" + '"';
+            string amt = '"' + amount + '"';
+            string accountref = '"' + accountName + '"';
+            string tdesc = '"' + "BUY PAMOJA SERVICES" + '"';
+
+            //string accountref = '"' + "EMESCCOS" + '"';
+            //string tdesc = '"' + "EMESCCOS TEST ACCOUNT" + '"';
+
             string callback = '"' + DataConfig.CallbackUrl + '"';
             var timeStamp = GetTimestamp(DateTime.Now);
             string newtimestamp = '"' + timeStamp + '"';
             ////////////////
-           
-            string shortCode = "322116";
-            string passkey = "79b821652462bf5ac20c26c9407cd6a5e779a8e2db4710901373a2c544005eb3";
+
+            //BUY PAMOJA SERVICES CREDENTIALS
+
+            //EMESCCOS CREDENTIALS
+            //  string shortCode = "322116";
+          //  string businessshortcode = '"' + "322116" + '"';
             var newpassword = Base64Encode(shortCode, passkey, timeStamp);
             string currentpassword = '"' + newpassword + '"';
    

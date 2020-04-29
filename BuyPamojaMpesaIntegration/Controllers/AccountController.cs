@@ -16,6 +16,9 @@ using static BuyPamojaMpesaIntegration.Models.MpesaStkModel;
 using System.Collections.Generic;
 using System.IO;
 
+using System.Net.Mail;
+
+
 namespace BuyPamojaMpesaIntegration.Controllers
 {
     [RoutePrefix("Account")]
@@ -405,8 +408,7 @@ namespace BuyPamojaMpesaIntegration.Controllers
         public ActionResult NewPay([System.Web.Http.FromBody]MpesaStkPushModel response)
         {
             try
-            {
-              
+            {             
 
                 string MerchantRequestID = response.Body.stkCallback.MerchantRequestID;
                 string CheckoutRequestID = response.Body.stkCallback.CheckoutRequestID;
@@ -452,15 +454,26 @@ namespace BuyPamojaMpesaIntegration.Controllers
                         }
 
                     }
-                    paymentModel.DeviceIMEI = MpesaStkController.PhoneIMEI;
-                    paymentModel.TransactionID = MpesaStkController.TransactnID;
+                    //paymentModel.DeviceIMEI = MpesaStkController.PhoneIMEI;
+                    //paymentModel.TransactionID = MpesaStkController.TransactnID;
+
+                    //var isDuplicateTransaction = conn.MpesaPayment.Where(a => a.MpesaReceiptNumber == paymentModel.MpesaReceiptNumber ).FirstOrDefault();
+
+                    //if (!(isDuplicateTransaction.Equals(null)))
+                    //{
 
                     conn.MpesaPayment.Add(paymentModel);
-                    conn.SaveChanges();
+                       conn.SaveChanges();
+                    //}
+                    //else {
+
+                    //    Logger.WriteLog(DateTime.Now + ":  Stk Response: " + "Cannot post Duplicate transaction");
+
+                    //}
 
 
 
-                    Logger.WriteLog(DateTime.Now + ":  Stk Response: " + paymentModel.ToString());
+                    Logger.WriteLog(DateTime.Now + ":  Safaricom Response: " + paymentModel.MpesaReceiptNumber +" " + paymentModel.Amount+" " + paymentModel.MpesaReceiptNumber+" "+ paymentModel.PhoneNumber);
                 }
                 return Json(new { ResultCode = 0, ResultDesc = "Success" }, JsonRequestBehavior.AllowGet);
             }
@@ -471,8 +484,31 @@ namespace BuyPamojaMpesaIntegration.Controllers
             }
         }
 
-       
 
+        public static void SendPaymentEmailNotification()
+        {
+            try
+            {
+                MailMessage mail = new MailMessage();
+                SmtpClient SmtpServer = new SmtpClient(DataConfig.MailServer);
+
+                mail.From = new MailAddress(DataConfig.MailFromAddress);
+                mail.To.Add("to_address");
+                mail.Subject = "Test Mail";
+                mail.Body = "This is for testing SMTP mail from GMAIL";
+
+                SmtpServer.Port = Convert.ToInt32(DataConfig.MailPort);
+                SmtpServer.Credentials = new System.Net.NetworkCredential("username", "password");
+                SmtpServer.EnableSsl = true;
+
+                SmtpServer.Send(mail);
+               
+            }
+            catch (Exception ex)
+            {
+                
+            }
+        }
 
         [Route("NewPayment")]
         //[HttpPost]

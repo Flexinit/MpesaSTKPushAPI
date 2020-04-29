@@ -109,3 +109,5 @@ C:\Users\User\source\repos\BuyPamojaMpesaIntegration\BuyPamojaMpesaIntegration\o
 C:\Users\User\source\repos\BuyPamojaMpesaIntegration\BuyPamojaMpesaIntegration\obj\Debug\BuyPamojaMpesaIntegration.csproj.CopyComplete
 C:\Users\User\source\repos\BuyPamojaMpesaIntegration\BuyPamojaMpesaIntegration\obj\Debug\BuyPamojaMpesaIntegration.dll
 C:\Users\User\source\repos\BuyPamojaMpesaIntegration\BuyPamojaMpesaIntegration\obj\Debug\BuyPamojaMpesaIntegration.pdb
+C:\Users\User\source\repos\BuyPamojaMpesaIntegration\BuyPamojaMpesaIntegration\obj\Debug\BuyPamojaMpesaIntegration.Migrations.Initial.resources
+C:\Users\User\source\repos\BuyPamojaMpesaIntegration\BuyPamojaMpesaIntegration\obj\Debug\BuyPamojaMpesaIntegration.csproj.GenerateResource.cache
