@@ -15,7 +15,7 @@ namespace IESR_PAYMENTS
             DirectoryInfo logDirInfo = null;
             FileInfo logFileInfo;
 
-            string logFilePath = "C:\\MPESA_LOGS\\";
+            string logFilePath = "C:\\MPESA_LOGS_TILL_MOIS_BRIDGE\\";
             logFilePath = logFilePath + "Log-" + System.DateTime.Today.ToString("MM-dd-yyyy") + "." + "txt";
             logFileInfo = new FileInfo(logFilePath);
             logDirInfo = new DirectoryInfo(logFileInfo.DirectoryName);

@@ -15,9 +15,14 @@ using Newtonsoft.Json.Linq;
 using static BuyPamojaMpesaIntegration.Models.MpesaStkModel;
 using System.Collections.Generic;
 using System.IO;
-
 using System.Net.Mail;
-
+//using MySql.Data.MySqlClient;
+using System.Web.Script.Serialization;
+using MySql.Data.MySqlClient;
+using System.Configuration;
+using System.Data.SqlClient;
+using System.Data;
+using Newtonsoft.Json;
 
 namespace BuyPamojaMpesaIntegration.Controllers
 {
@@ -417,18 +422,11 @@ namespace BuyPamojaMpesaIntegration.Controllers
 
                 //Save
                 List<ItemList> Itemlist = response.Body.stkCallback.CallbackMetadata.Item;
-                //var filePath2 = System.Web.HttpContext.Current.Server.MapPath("~/App_Data/MYDATALOGS.txt");
-                //using (StreamWriter writer = new StreamWriter(filePath2, true))
-                //{
-                //    writer.WriteLine("Created By :" + "SYSTEM" + Environment.NewLine + "Date Created :" + DateTime.Now.ToString() + Environment.NewLine + "2020/3/2 Message :" + ResultCode + " " + ResultDesc + Environment.NewLine + "StackTrace :" + "N/A");
-                //    writer.WriteLine(Environment.NewLine + "-----------------------------------------------------------------------------" + Environment.NewLine);
-                //}
+              
 
                 Logger.WriteLog(DateTime.Now + "Response from Safaricom API: " +ResultCode + " " + ResultDesc);
 
-                using (var conn = new ApplicationDbContext())
-                {
-
+                
                     RepaymentMpesaTrans paymentModel = new RepaymentMpesaTrans();
 
                     foreach (ItemList x in Itemlist)
@@ -454,27 +452,10 @@ namespace BuyPamojaMpesaIntegration.Controllers
                         }
 
                     }
-                    //paymentModel.DeviceIMEI = MpesaStkController.PhoneIMEI;
-                    //paymentModel.TransactionID = MpesaStkController.TransactnID;
-
-                    //var isDuplicateTransaction = conn.MpesaPayment.Where(a => a.MpesaReceiptNumber == paymentModel.MpesaReceiptNumber ).FirstOrDefault();
-
-                    //if (!(isDuplicateTransaction.Equals(null)))
-                    //{
-
-                    conn.MpesaPayment.Add(paymentModel);
-                       conn.SaveChanges();
-                    //}
-                    //else {
-
-                    //    Logger.WriteLog(DateTime.Now + ":  Stk Response: " + "Cannot post Duplicate transaction");
-
-                    //}
 
 
-
-                    Logger.WriteLog(DateTime.Now + ":  Safaricom Response: " + paymentModel.MpesaReceiptNumber +" " + paymentModel.Amount+" " + paymentModel.MpesaReceiptNumber+" "+ paymentModel.PhoneNumber);
-                }
+                Logger.WriteLog(paymentModel.TransactionDate + ":  Safaricom Response: " + paymentModel.MpesaReceiptNumber +" " + paymentModel.Amount+" " + paymentModel.MpesaReceiptNumber+" "+ paymentModel.PhoneNumber);
+                
                 return Json(new { ResultCode = 0, ResultDesc = "Success" }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -511,50 +492,102 @@ namespace BuyPamojaMpesaIntegration.Controllers
         }
 
         [Route("NewPayment")]
-        //[HttpPost]
-        [AllowAnonymous]     
-        public ActionResult NewPayment(Payments model)
+        [AllowAnonymous]
+        public ActionResult NewPayment(Payments mpesaResponseModel)
         {
+
             try
             {
-                using (var conn = new ApplicationDbContext())
+                Logger.WriteLog("\n\nMPESA CALLBACK RESPONSE: " + DateTime.Now + " " + JsonConvert.SerializeObject(mpesaResponseModel));
+
+                String middleName = "N/A";
+                    String lastName = "N/A";
+                if (mpesaResponseModel.MiddleName != null)
                 {
-                    Payments mpesa_payments = new Payments();
+                    middleName = mpesaResponseModel.MiddleName;
+                }
+                    if (mpesaResponseModel.LastName != null) {
+                        lastName = mpesaResponseModel.LastName;
+                    }
+                    Payments mpesaPayments = new Payments();
+                    mpesaPayments.TransactionType = mpesaResponseModel.TransactionType;
+                    mpesaPayments.TransID = mpesaResponseModel.TransID;
+                    mpesaPayments.TransTime = mpesaResponseModel.TransTime;
+                    mpesaPayments.TransAmount = mpesaResponseModel.TransAmount;
+                    mpesaPayments.BusinessShortCode = mpesaResponseModel.BusinessShortCode;
+                    mpesaPayments.billref_number = mpesaResponseModel.billref_number;
+                    mpesaPayments.InvoiceNumber = mpesaResponseModel.InvoiceNumber;
+                    mpesaPayments.OrgAccountBalance = mpesaResponseModel.OrgAccountBalance;
+                    mpesaPayments.ThirdPartyTransID = mpesaResponseModel.ThirdPartyTransID;
+                    mpesaPayments.MSISDN = mpesaResponseModel.MSISDN;
+                    mpesaPayments.FirstName = mpesaResponseModel.FirstName;
+                    mpesaPayments.MiddleName = middleName;
+                    mpesaPayments.LastName = lastName;
 
-                    mpesa_payments.TransactionType = model.TransactionType;
-                    mpesa_payments.TransID = model.TransID;
-                    mpesa_payments.TransTime = model.TransTime;
-                    mpesa_payments.TransAmount = model.TransAmount;
-                    mpesa_payments.BusinessShortCode = model.BusinessShortCode;
-                    mpesa_payments.BillRefNumber = model.BillRefNumber;
-                    mpesa_payments.InvoiceNumber = model.InvoiceNumber;
-                    mpesa_payments.OrgAccountBalance = model.OrgAccountBalance;
-                    mpesa_payments.ThirdPartyTransID = model.ThirdPartyTransID;
-                    mpesa_payments.MSISDN = model.MSISDN;
-                    mpesa_payments.FirstName = model.FirstName;
-                    mpesa_payments.MiddleName = model.MiddleName;
-                    mpesa_payments.LastName = model.LastName;
+                    
 
+                //DateTime timestamp = DateTime.ParseExact(model.TransTime, "yyyyMMddHHmmss", null);
 
-                    conn.payments.Add(mpesa_payments);
+                String transDateString = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+                DateTime transDateTime = DateTime.ParseExact(transDateString, "yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture);
+                // Push to SQL Server database
+                string connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
 
+                    using (SqlConnection sqlConnection = new SqlConnection(connectionString))
+                    {
+                        sqlConnection.Open();
 
-                    conn.SaveChanges();
+                        string query = "INSERT INTO [Moi_s Bridge Quarry Company$MPESA Receipt$cef8b7a0-c67f-41e7-a5b9-524de3c3c512] (TransactionType, TransID,PostedDate, TransTime,  TransAmount, BusinessShortCode, BillRefNumber,Posted, PostedManually, OrgAccountBalance, ThirdPartyTransID, MSISDN, FirstName, MiddleName, LastName) " +
+                            "VALUES ( @TransactionType, @TransID,@PostedDate, @TransTime, @TransAmount, @BusinessShortCode, @BillRefNumber,@Posted, @PostedManually, @OrgAccountBalance, @ThirdPartyTransID, @MSISDN, @FirstName, @MiddleName, @LastName)";
 
-                    Logger.WriteLog("\n\n"+DateTime.Now+" " + model.BillRefNumber+" "+model.MSISDN+"  "+model.TransAmount);
+                        using (SqlCommand sqlCommand = new SqlCommand(query, sqlConnection))
+                        {
+                            sqlCommand.Parameters.AddWithValue("@TransactionType", "BuyGoodsOnline");
+                            sqlCommand.Parameters.AddWithValue("@TransID", mpesaResponseModel.TransID);
+                            sqlCommand.Parameters.AddWithValue("@PostedDate", transDateString);
+                            sqlCommand.Parameters.AddWithValue("@TransTime", mpesaResponseModel.TransTime);
+                            sqlCommand.Parameters.AddWithValue("@TransAmount", mpesaResponseModel.TransAmount);
+                            sqlCommand.Parameters.AddWithValue("@BusinessShortCode", mpesaResponseModel.BusinessShortCode);
+                            sqlCommand.Parameters.AddWithValue("@BillRefNumber", mpesaResponseModel.TransID);
+                            sqlCommand.Parameters.AddWithValue("@Posted", 0);
+                            sqlCommand.Parameters.AddWithValue("@PostedManually", 0);
+                            sqlCommand.Parameters.AddWithValue("@OrgAccountBalance", mpesaResponseModel.OrgAccountBalance);
+                            sqlCommand.Parameters.AddWithValue("@ThirdPartyTransID", mpesaResponseModel.TransID);
+                            sqlCommand.Parameters.AddWithValue("@MSISDN", mpesaResponseModel.MSISDN);
+                            sqlCommand.Parameters.AddWithValue("@FirstName", mpesaResponseModel.FirstName);
+                            sqlCommand.Parameters.AddWithValue("@MiddleName",middleName);
 
+                            sqlCommand.Parameters.AddWithValue("@LastName", lastName);
 
+                            sqlCommand.ExecuteNonQuery();
+                        }
+                    sqlConnection.Close();
                 }
 
-                return Json(new { Status = "OK", Message = "SUCCESSFULL" ,JsonRequestBehavior.AllowGet});
+                
 
-            } catch (Exception ex) {
-                Logger.WriteLog("\n\n" + DateTime.Now+" Exception " + ex.ToString());
+                    Logger.WriteLog("\n\n" + DateTime.Now + " " + mpesaResponseModel.billref_number + " " + mpesaResponseModel.MSISDN + "  "+mpesaResponseModel.BusinessShortCode+"  " + mpesaResponseModel.TransAmount + " " + mpesaResponseModel.FirstName + "  " + mpesaResponseModel.LastName);
 
-                return Json(new { Status = "OK", ex.Message , JsonRequestBehavior.AllowGet });
 
+                return Json(new { Status = "OK", Message = "SUCCESSFULL" }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Logger.WriteLog("\n\n" + DateTime.Now + " Exception " + ex.ToString());
+
+                return Json(new { Status = "OK", ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
+
+
+
+        public ActionResult ValidateNewPay() {
+
+            Logger.WriteLog("\n\n" + DateTime.Now + " Validation from MPESA" );
+
+            return Json(new { status = 0, message = "SUCCESS"},JsonRequestBehavior.AllowGet);
+        }
+
 
 
         //

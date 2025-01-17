@@ -1,66 +1,51 @@
 ﻿using IESR_PAYMENTS;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Text;
-using System.Web;
-using System.Web.Http;
-using System.Web.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Net.Http;
+using System.Web.Mvc;
 using BuyPamojaMpesaIntegration.Models;
+using System.Web.Http;
 
 namespace BuyPamojaMpesaIntegration.Controllers
 {
+
     public class MpesaStkController : Controller
     {
-        public static string PhoneIMEI;
-        public static string TransactnID;
-     
-            public ActionResult makeStkPayment(string phoneNumber, string amount,string accountName /* string deviceIMEI, string transID*/)
-            {
-            ////////////////
-            //PhoneIMEI = deviceIMEI;
-            //TransactnID = transID;
+
+        
+        public ActionResult MakeStkPayment(STKPushRequest sTKPushRequest)
+        {
+            Logger.WriteLog(DateTime.Now + "STK****PUSH***REQUEST: MSISDN "+sTKPushRequest.PhoneNumber+ " Amount: "+ sTKPushRequest.Amount+ " PartyB :"+sTKPushRequest.PartyB);
+
+
             string ab = "https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest";
             string baseUrl = ab;
 
-          //  BUY PAMOJA SERVICES CREDENTIALS
-            string user = "rOXDzQxciiMWISPianwzexdqkXw734Os";
-            string pass = "HQ4mbKm8ZsTYqY73";
-            string shortCode = "777951";
-            string businessshortcode = '"' + "777951" + '"';
-            string passkey = "e4a4207d16c990eabe040038678377b13db657d94f90ec4cbc8fad43a7cec12f";
+            string user = "FIL8zXh4XEWMZ1fFM93FisW3IO2UyJTH23GHJ9IgPoWYF1kU";
+            string pass = "9RSPnmGzt9OmrZ0evGc8RfcoAZSBdJktxHWmVARrf42fxzw92sS8IRCpdYAzVdqD";
+            string shortCode = "864964";
+            string PartyB = '"' + sTKPushRequest.PartyB + '"'; // Till number - 355999
+            string businessshortcode = '"' + "864964" + '"';
+            string passkey = "2c86884febaff4521d7211aff416a7e421e6e95734032f40e26d85d25cc5c368";
 
-            //EMESCCOS CREDENTIALS
-            //string user = "CktydtNoEgUQ9H2Jx1IShtkY28G1Bg6V";
-            //string pass = "zo1MIYc8i2FKvg20";
-            //string passkey = "79b821652462bf5ac20c26c9407cd6a5e779a8e2db4710901373a2c544005eb3";
-            //   string phonenumber = '"' + "254" + phoneNumber + '"';
-           // string businessshortcode = '"' + "322116" + '"';
-          //  string phonenumber2 = '"' + "254" + "729223348" + '"';
-            string phonenumber2 = '"' + "254" + phoneNumber.Substring(1) + '"';
-            string ttype = '"' + "CustomerPayBillOnline" + '"';
-            string amt = '"' + amount + '"';
-            string accountref = '"' + accountName + '"';
-            string tdesc = '"' + "BUY PAMOJA SERVICES" + '"';
+            
+            string phonenumber2 = '"' + "254" + sTKPushRequest.PhoneNumber.Substring(1) + '"';
+            string ttype = '"' + "CustomerBuyGoodsOnline" + '"';
+            string amt = '"' + sTKPushRequest.Amount + '"';
+            string accountref = '"' + "MOI'S BRIDGE QUARRY CO LTD " + '"';
+            string tdesc = '"' + sTKPushRequest.AccountName + '"';
 
-            //string accountref = '"' + "EMESCCOS" + '"';
-            //string tdesc = '"' + "EMESCCOS TEST ACCOUNT" + '"';
+          
 
             string callback = '"' + DataConfig.CallbackUrl + '"';
             var timeStamp = GetTimestamp(DateTime.Now);
             string newtimestamp = '"' + timeStamp + '"';
             ////////////////
 
-            //BUY PAMOJA SERVICES CREDENTIALS
-
-            //EMESCCOS CREDENTIALS
-            //  string shortCode = "322116";
-          //  string businessshortcode = '"' + "322116" + '"';
+            
             var newpassword = Base64Encode(shortCode, passkey, timeStamp);
             string currentpassword = '"' + newpassword + '"';
    
@@ -83,7 +68,7 @@ namespace BuyPamojaMpesaIntegration.Controllers
                           "\"TransactionType\":" + ttype + "," +
                           "\"Amount\":" + amt + "," +
                           "\"PartyA\":" + phonenumber2 + "," +
-                          "\"PartyB\":" + businessshortcode + "," +
+                          "\"PartyB\":" + PartyB + "," +
                           "\"PhoneNumber\":" + phonenumber2 + "," +
                           "\"CallBackURL\":" + callback + "," +
                           "\"AccountReference\":" + accountref + "," +

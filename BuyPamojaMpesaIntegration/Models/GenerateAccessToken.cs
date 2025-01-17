@@ -11,8 +11,9 @@ namespace IESR_PAYMENTS
     public class GenerateAccessToken
     {
         public static string generate(string user, string pass)
-        { 
+        {
             string myurl = "https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials";
+            //string myurl = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials";
 
             string app_key = user;
             string app_secret = pass;

@@ -27,25 +27,28 @@ namespace IESR_PAYMENTS.Controllers
         {
             try
             {
-                string token = GenerateAccessToken.generate("rOXDzQxciiMWISPianwzexdqkXw734Os", "HQ4mbKm8ZsTYqY73");
+                //SANDBOX CREDENTIALS
+                string token = GenerateAccessToken.generate("FIL8zXh4XEWMZ1fFM93FisW3IO2UyJTH23GHJ9IgPoWYF1kU",
+                    "9RSPnmGzt9OmrZ0evGc8RfcoAZSBdJktxHWmVARrf42fxzw92sS8IRCpdYAzVdqD");
                 string resp_token = ((JObject.Parse(token))["access_token"]).ToString();
 
-                string baseUrl = "https://api.safaricom.co.ke/mpesa/c2b/v1/registerurl";
+                //string baseUrl = "https://api.safaricom.co.ke/mpesa/c2b/v1/registerurl";
+                string baseUrl = "https://api.safaricom.co.ke/mpesa/c2b/v2/registerurl";
 
-                string validationURL = '"' + DataConfig.CallbackUrl + '"';
-                string confirmationURL = '"' + DataConfig.CallbackUrl + '"';
+                string validationURL = '"' + "https://suamapps.com:54330/Account/ValidateNewPay" + '"';
+                string confirmationURL = '"' + "https://suamapps.com:54330/Account/NewPayment" + '"';
                 string responseType = '"' + "Completed" + '"';                
-                string businessshortcode = '"' + "777951" + '"';
+                string businessshortcode = '"' + "865964" + '"'; // Store Number
                 
-                // return resp_token;
+                // return resp_token;         
 
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(baseUrl);
 
-                request.Headers.Add("authorization", "Bearer " + resp_token);
+                request.Headers.Add("Authorization", "Bearer " + resp_token);
                 request.ContentType = "application/json";
                 request.Headers.Add("cache-control", "no-cache");
 
-                request.KeepAlive = true;
+                request.KeepAlive = false;
                 request.Method = "POST";
 
 
@@ -66,7 +69,6 @@ namespace IESR_PAYMENTS.Controllers
 
                     // Get the stream associated with the response.
                     Stream receiveStream = response.GetResponseStream();
-
                     // Pipes the stream to a higher level stream reader with the required encoding format. 
                     StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
 
@@ -75,16 +77,14 @@ namespace IESR_PAYMENTS.Controllers
                     response.Close();
                     readStream.Close();
 
-                return Json(new { response = resp, 
-                    
-                });
+                return Json(new { response = resp, } ,JsonRequestBehavior.AllowGet);
 
 
             }
             catch (Exception ex)
             {
                 Logger.WriteLog("Exception " + ex.InnerException);
-                return Json(new { error = ex.Message });
+                return Json(new { error = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -94,107 +94,7 @@ namespace IESR_PAYMENTS.Controllers
         }
 
 
-        [HttpPost]
-        public ActionResult QueryCRB() {
-
-            try
-            {
-                string json = "{\"report_type\":\"5\"," +
-                                "\"identity_number\":\"880000088\"," +
-                                "\"identity_type\":\"001\"," +
-                                "\"report_reason\":\"1\"," +
-                                "\"loan_amount\":\"200\"}";
-
-                MetropolData metropolData = new MetropolData();
-
-                metropolData.report_type = 5;
-                metropolData.identity_number = "880000088";
-                metropolData.identity_type = "001";
-                metropolData.report_reason = 1;
-                metropolData.loan_amount = 200;
-
-                string metropolJson = JsonConvert.SerializeObject(metropolData);
-
-
-                //    string datePatt = @"M/d/yyyy hh:mm:ss tt";
-                string datePatt = @"yyyyMMddhhmmsstt";
-                string dateFormat = @"yyyyMMddHHmmssfffffffK";
-                var Timestamp = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds();
-                String timeStamp = GetTimestamp(DateTime.UtcNow);
-
-
-
-                DateTime saveUtcNow = DateTime.UtcNow;
-                DateTime myDt;
-                string dateString = saveUtcNow.ToString(datePatt);
-
-                string OriginalString = "tOuyfPLXqjAfasGASRrzQnFFoEAqKD" +
-                    json + 
-                    "QrJkJVJUhhImPwjxNhBIQzgbPdoCNXCEQlqAIaurhFfyDQWrYZBOaHPrmGwa"+ timeStamp;
-
-
-                string baseUrl = "https://api.metropol.co.ke:5555/v2_1/report/json";
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(baseUrl);
-
-
-                request.Headers.Add("X-METROPOL-REST-API-KEY", "tOuyfPLXqjAfasGASRrzQnFFoEAqKD");
-                request.Headers.Add("X-METROPOL-REST-API-HASH", ComputeSha256Hash(OriginalString));
-                request.Headers.Add("X-METROPOL-REST-API-TIMESTAMP", timeStamp);
-                request.ContentType = "application/json";
-                request.Headers.Add("cache-control", "no-cache");
-
-                request.KeepAlive = true;
-                request.Method = "POST";
-
-
-
-                using (var streamWriter = new StreamWriter(request.GetRequestStream()))
-                {
-                    string jsonRequestData = "{\"report_type\":\"5\"," +
-                                "\"identity_number\":\"880000088\"," +
-                                "\"identity_type\":\"001\"," +
-                                "\"report_reason\":\"1\"," +
-                                "\"loan_amount\":\"200\"}";
-
-
-                    streamWriter.Write(metropolJson);
-                    streamWriter.Flush();
-                    streamWriter.Close();
-                }
-
-
-
-                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-
-                // Get the stream associated with the response.
-                Stream receiveStream = response.GetResponseStream();
-
-                // Pipes the stream to a higher level stream reader with the required encoding format. 
-                StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
-
-                var resp = readStream.ReadToEnd();
-                Console.WriteLine(resp);
-                response.Close();
-                readStream.Close();
-
-                return Json(new
-                {
-                    Status = "Success",
-                    data = resp
-
-
-
-                });
-            }
-
-            catch (Exception ex)
-            {
-                Logger.WriteLog("Exception " + ex.InnerException);
-                return Json(new { error = ex.Message
-                });
-            }
-
-        }
+      
 
         public static String GetTimestamp(DateTime value)
         {

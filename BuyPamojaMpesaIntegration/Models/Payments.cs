@@ -14,7 +14,7 @@ namespace BuyPamojaMpesaIntegration.Models
         public string TransTime { get; set; }
         public string TransAmount { get; set; }
         public string BusinessShortCode { get; set; }
-        public string BillRefNumber { get; set; }
+        public string billref_number { get; set; }
         public string InvoiceNumber { get; set; }
         public string OrgAccountBalance { get; set; }
         public string ThirdPartyTransID { get; set; }
